@@ -17,21 +17,3 @@ CREATE TABLE IF NOT EXISTS clients
     subscription_id INT,
     FOREIGN KEY (subscription_id) REFERENCES subscriptions (id)
 );
-
-INSERT INTO subscriptions (type, cost, duration_days)
-VALUES ('Стандарт', 5000.0, 30),
-       ('Премиум', 10000.0, 90),
-       ('Эконом', 3000.0, 15);
-
-UPDATE clients
-SET subscription_id = 1
-WHERE id = 1; -- Клиент с id=1 получает абонемент "Стандарт"
-UPDATE clients
-SET subscription_id = 2
-WHERE id = 2; -- Клиент с id=2 получает абонемент "Премиум"
-UPDATE clients
-SET subscription_id = 3
-WHERE id = 3; -- Клиент с id=3 получает абонемент "Эконом"
-UPDATE clients
-SET subscription_id = 1
-WHERE id = 4; -- Клиент с id=4 получает абонемент "Стандарт"
