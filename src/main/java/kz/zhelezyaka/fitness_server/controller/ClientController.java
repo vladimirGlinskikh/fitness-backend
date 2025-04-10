@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -50,5 +51,14 @@ public class ClientController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    private void validateClient(Client client) {
+        if (client.getName() == null || client.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Имя не может быть пустым.");
+        }
+        if (client.getPhone() == null || !Pattern.matches("\\+7\\d{10}", client.getPhone())) {
+            throw new IllegalArgumentException("Номер телефона должен начинаться с +7 и содержать 10 цифр (например, +79876543210).");
+        }
     }
 }
