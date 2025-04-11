@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST-контроллер для получения статистики.
+ * Предоставляет эндпоинт для получения данных о количестве клиентов, абонементов и средней стоимости.
+ */
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/statistics")
@@ -17,6 +22,12 @@ public class StatisticsController {
 
     private final ClientRepository clientRepository;
     private final SubscriptionRepository subscriptionRepository;
+
+    /**
+     * Получает статистические данные.
+     *
+     * @return Map с данными: общее количество клиентов, абонементов и средняя стоимость абонемента
+     */
 
     @GetMapping
     public Map<String, Object> getStatistics() {
