@@ -17,3 +17,9 @@ CREATE TABLE IF NOT EXISTS clients
     subscription_id INT,
     FOREIGN KEY (subscription_id) REFERENCES subscriptions (id)
 );
+
+INSERT INTO subscriptions (id, type, cost, duration_days)
+VALUES (1, 'Месячный', 5000.00, 30),
+       (2, 'Годовой', 45000.00, 365),
+       (3, 'Разовый', 600.00, 1),
+       (4, 'На 10 посещений', 5500.00, 90);
