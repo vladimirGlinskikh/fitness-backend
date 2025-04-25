@@ -24,6 +24,9 @@ public class Client {
     @Column(unique = true)
     private String username; // Добавляем поле для связи с User
 
+    @Column(nullable = false)
+    private String password;
+
     @ManyToOne
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;

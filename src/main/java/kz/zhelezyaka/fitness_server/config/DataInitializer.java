@@ -29,11 +29,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
         // Очищаем все данные из репозиториев
         clientRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
         subscriptionRepository.deleteAllInBatch();
+
         // Создаём абонементы
         Subscription subscription1 = new Subscription();
         subscription1.setType("Месячный");
@@ -54,12 +54,12 @@ public class DataInitializer implements CommandLineRunner {
         admin.setRole(Role.ADMIN);
         userRepository.save(admin);
 
-        // Создаём клиента для администратора
         Client adminClient = new Client();
         adminClient.setUsername("admin");
         adminClient.setName("Админ Админов");
         adminClient.setPhone("+79999999999");
-        adminClient.setSubscription(subscription1); // Или subscription2, если нужен другой абонемент
+        adminClient.setPassword(passwordEncoder.encode("admin123")); // Добавлено
+        adminClient.setSubscription(subscription1);
         clientRepository.save(adminClient);
 
         // Создаём клиентов
@@ -73,6 +73,7 @@ public class DataInitializer implements CommandLineRunner {
         ivan.setUsername("ivan");
         ivan.setName("Иван Иванов");
         ivan.setPhone("+79876543210");
+        ivan.setPassword(passwordEncoder.encode("ivan123")); // Добавлено
         ivan.setSubscription(subscription1);
         clientRepository.save(ivan);
 
@@ -86,6 +87,7 @@ public class DataInitializer implements CommandLineRunner {
         maria.setUsername("maria");
         maria.setName("Мария Петрова");
         maria.setPhone("+79991234567");
+        maria.setPassword(passwordEncoder.encode("maria123")); // Добавлено
         maria.setSubscription(subscription2);
         clientRepository.save(maria);
     }
