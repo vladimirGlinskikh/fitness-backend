@@ -4,6 +4,7 @@ import kz.zhelezyaka.fitness_server.model.Client;
 import kz.zhelezyaka.fitness_server.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,11 @@ import java.util.regex.Pattern;
 public class ClientController {
 
     private final ClientRepository clientRepository;
+
+    @GetMapping("/test")
+    public String testEndpoint() {
+        return "Test endpoint is working!";
+    }
 
     /**
      * Получает список всех клиентов.
@@ -89,6 +95,15 @@ public class ClientController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Client> getCurrentClient(Authentication authentication) {
+        System.out.println("Processing /api/clients/me for user: " + authentication.getName());
+        String username = authentication.getName();
+        return clientRepository.findByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
