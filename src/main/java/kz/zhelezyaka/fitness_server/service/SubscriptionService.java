@@ -47,5 +47,8 @@ public class SubscriptionService {
         if (subscription.getDurationDays() <= 0) {
             throw new IllegalArgumentException("Длительность абонемента должна быть больше 0 дней.");
         }
+        if (subscription.getDurationDays() > 365) {
+            throw new IllegalArgumentException("Длительность абонемента не может превышать 365 дней.");
+        }
     }
 }
