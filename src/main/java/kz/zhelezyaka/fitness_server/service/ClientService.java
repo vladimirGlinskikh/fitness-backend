@@ -22,11 +22,11 @@ public class ClientService {
     }
 
     public Client createClient(Client client) {
-        validateClient(client);
+        validateClient(client, true);
 
         // Проверка уникальности username
         if (userRepository.findByUsername(client.getUsername()).isPresent() ||
-            clientRepository.findByUsername(client.getUsername()).isPresent()) {
+                clientRepository.findByUsername(client.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Имя пользователя уже занято.");
         }
 
@@ -45,11 +45,11 @@ public class ClientService {
     public Client updateClient(Long id, Client client) {
         return clientRepository.findById(id)
                 .map(existing -> {
-                    validateClient(client);
+                    validateClient(client, false);
                     // Проверка уникальности username, если он изменён
                     if (!existing.getUsername().equals(client.getUsername())) {
                         if (userRepository.findByUsername(client.getUsername()).isPresent() ||
-                            clientRepository.findByUsername(client.getUsername()).isPresent()) {
+                                clientRepository.findByUsername(client.getUsername()).isPresent()) {
                             throw new IllegalArgumentException("Имя пользователя уже занято.");
                         }
                         // Обновление User
@@ -82,7 +82,7 @@ public class ClientService {
                 .orElseThrow(() -> new IllegalArgumentException("Клиент с ID " + id + " не найден."));
     }
 
-    private void validateClient(Client client) {
+    private void validateClient(Client client, boolean isNew) {
         if (client.getName() == null || client.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя не может быть пустым.");
         }
@@ -106,11 +106,17 @@ public class ClientService {
             throw new IllegalArgumentException("Имя пользователя должно содержать 3–20 символов (буквы, цифры, подчёркивание).");
         }
 
-        if (client.getPassword() == null || client.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("Пароль не может быть пустым.");
+        if (isNew) {
+            if (client.getPassword() == null || client.getPassword().trim().isEmpty()) {
+                throw new IllegalArgumentException("Пароль не может быть пустым при создании клиента.");
+            }
+            if (client.getPassword().length() < 6) {
+                throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов.");
+            }
         }
-        if (client.getPassword().length() < 6) {
-            throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов.");
+
+        if (client.getSubscription() == null) {
+            throw new IllegalArgumentException("Абонемент должен быть выбран.");
         }
     }
 }
