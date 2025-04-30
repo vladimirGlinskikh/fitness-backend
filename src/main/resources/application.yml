@@ -1,16 +1,38 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: root
 
+# Конфигурационный файл для серверного приложения фитнес-клуба.
+#
+# Описание:
+# Этот файл содержит настройки Spring Boot для конфигурации источника данных (БД),
+# параметров JPA/Hibernate и порта сервера.
+#
+# Автор: Милана
+# Версия: 1.0
+# Дата: 2025-04-29
+
+# Настройки Spring для подключения к базе данных и JPA
+
+spring:
+  # Настройки источника данных (DataSource)
+  datasource:
+    # URL подключения к PostgreSQL базе данных
+    url: jdbc:postgresql://localhost:5432/postgres
+    # Имя пользователя для подключения к базе данных
+    username: postgres
+    # Пароль для подключения к базе данных
+    password: root
+  # Настройки JPA и Hibernate
   jpa:
     hibernate:
+      # Автоматическое обновление схемы БД (создание/обновление таблиц)
       ddl-auto: update
+      # Показывать SQL-запросы в консоли
     show-sql: true
     properties:
       hibernate:
+        # Диалект Hibernate для PostgreSQL
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+# Настройки сервера
 server:
+  # Порт, на котором запускается серверное приложение
   port: 5050

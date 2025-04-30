@@ -11,6 +11,18 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс для инициализации начальных данных приложения фитнес-клуба.
+ * <p>
+ * Этот класс реализует интерфейс {@code CommandLineRunner} и используется для заполнения базы данных
+ * тестовыми данными при запуске приложения. Создаёт абонементы, администратора и тестовых клиентов.
+ * </p>
+ *
+ * @author Милана
+ * @version 1.0
+ * @since 2025-04-29
+ */
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -18,6 +30,15 @@ public class DataInitializer implements CommandLineRunner {
     private final ClientRepository clientRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final PasswordEncoder passwordEncoder;
+
+    /**
+     * Конструктор для создания экземпляра {@code DataInitializer}.
+     *
+     * @param userRepository репозиторий для работы с пользователями
+     * @param clientRepository репозиторий для работы с клиентами
+     * @param subscriptionRepository репозиторий для работы с абонементами
+     * @param passwordEncoder кодировщик паролей для шифрования паролей пользователей
+     */
 
     public DataInitializer(UserRepository userRepository, ClientRepository clientRepository,
                            SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder) {
@@ -27,8 +48,22 @@ public class DataInitializer implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Инициализирует начальные данные при запуске приложения.
+     * <p>
+     * Удаляет все существующие данные из репозиториев и создаёт:
+     * <ul>
+     *     <li>Два абонемента: "Месячный" (5000 руб., 30 дней) и "Годовой" (45000 руб., 365 дней).</li>
+     *     <li>Администратора с именем пользователя "admin" и паролем "admin123".</li>
+     *     <li>Двух клиентов: "Иван Иванов" (ivan, ivan123) и "Мария Петрова" (maria, maria123).</li>
+     * </ul>
+     * Пароли шифруются с использованием {@code PasswordEncoder}.
+     *
+     * @param args аргументы командной строки (не используются)
+     */
+
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
         // Очищаем все данные из репозиториев
         clientRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
@@ -58,7 +93,7 @@ public class DataInitializer implements CommandLineRunner {
         adminClient.setUsername("admin");
         adminClient.setName("Админ Админов");
         adminClient.setPhone("+79999999999");
-        adminClient.setPassword(passwordEncoder.encode("admin123")); // Добавлено
+        adminClient.setPassword(passwordEncoder.encode("admin123"));
         adminClient.setSubscription(subscription1);
         clientRepository.save(adminClient);
 
@@ -73,7 +108,7 @@ public class DataInitializer implements CommandLineRunner {
         ivan.setUsername("ivan");
         ivan.setName("Иван Иванов");
         ivan.setPhone("+79876543210");
-        ivan.setPassword(passwordEncoder.encode("ivan123")); // Добавлено
+        ivan.setPassword(passwordEncoder.encode("ivan123"));
         ivan.setSubscription(subscription1);
         clientRepository.save(ivan);
 
@@ -87,7 +122,7 @@ public class DataInitializer implements CommandLineRunner {
         maria.setUsername("maria");
         maria.setName("Мария Петрова");
         maria.setPhone("+79991234567");
-        maria.setPassword(passwordEncoder.encode("maria123")); // Добавлено
+        maria.setPassword(passwordEncoder.encode("maria123"));
         maria.setSubscription(subscription2);
         clientRepository.save(maria);
     }

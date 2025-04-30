@@ -1,5 +1,6 @@
 package kz.zhelezyaka.fitness_server.controller;
 
+import kz.zhelezyaka.fitness_server.model.Subscription;
 import kz.zhelezyaka.fitness_server.repository.ClientRepository;
 import kz.zhelezyaka.fitness_server.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * REST-контроллер для получения статистики.
- * Предоставляет эндпоинт для получения данных о количестве клиентов, абонементов и средней стоимости.
+ * REST-контроллер для получения статистики приложения фитнес-клуба.
+ * <p>
+ * Этот класс предоставляет эндпоинт для получения статистических данных,
+ * таких как общее количество клиентов, абонементов и средняя стоимость абонемента.
+ * </p>
+ *
+ * @author Милана
+ * @version 1.0
+ * @since 2025-04-29
  */
 
 @RestController
@@ -24,9 +32,16 @@ public class StatisticsController {
     private final SubscriptionRepository subscriptionRepository;
 
     /**
-     * Получает статистические данные.
+     * Получает статистические данные о клиентах и абонементах.
+     * <p>
+     * Возвращает следующие показатели:
+     * <ul>
+     *     <li>{@code totalClients} — общее количество клиентов.</li>
+     *     <li>{@code totalSubscriptions} — общее количество абонементов.</li>
+     *     <li>{@code averageSubscriptionCost} — средняя стоимость абонемента (0.0, если абонементов нет).</li>
+     * </ul>
      *
-     * @return Map с данными: общее количество клиентов, абонементов и средняя стоимость абонемента
+     * @return объект {@code Map} с данными: общее количество клиентов, абонементов и средняя стоимость абонемента
      */
 
     @GetMapping
@@ -43,7 +58,7 @@ public class StatisticsController {
 
         // Средняя стоимость абонемента
         Double averageCost = subscriptionRepository.findAll().stream()
-                .mapToDouble(sub -> sub.getCost())
+                .mapToDouble(Subscription::getCost)
                 .average()
                 .orElse(0.0);
         statistics.put("averageSubscriptionCost", averageCost);
