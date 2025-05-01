@@ -2,42 +2,44 @@ package kz.zhelezyaka.fitness_server.controller;
 
 import kz.zhelezyaka.fitness_server.repository.ClientRepository;
 import kz.zhelezyaka.fitness_server.repository.SubscriptionRepository;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.util.List;
 
-@Disabled("Временно отключен из-за ошибки")
-@SpringBootTest
-@AutoConfigureMockMvc
 class StatisticsControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private StatisticsController controller;
 
-    @Autowired
+    @Mock
     private ClientRepository clientRepository;
 
-    @Autowired
+    @Mock
     private SubscriptionRepository subscriptionRepository;
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void testGetStatistics() throws Exception {
-        when(clientRepository.count()).thenReturn(2L);
-        when(subscriptionRepository.count()).thenReturn(2L);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this); // инициализация mock объектов
+    }
 
-        mockMvc.perform(get("/api/statistics"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.totalClients").value(2));
+    @Test
+    void testGetStatisticsWithNoSubscriptions() {
+        // Подготовка фиктивных данных
+        given(clientRepository.count()).willReturn(5L); // имитируем наличие 5 клиентов
+        given(subscriptionRepository.findAll()).willReturn(List.of()); // нет активных абонементов
+
+        // Выполнение метода контроллера
+        var result = controller.getStatistics();
+
+        // Проверка результатов
+        assertThat(result.get("totalClients")).isEqualTo(5L);
+        assertThat(result.get("totalSubscriptions")).isEqualTo(0L);
+        assertThat(result.get("averageSubscriptionCost")).isEqualTo(0.0); // средняя стоимость должна быть равна нулю
     }
 }
