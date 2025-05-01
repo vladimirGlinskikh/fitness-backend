@@ -103,12 +103,12 @@ public class ClientService {
                         userRepository.findByUsername(existing.getUsername())
                                 .ifPresent(user -> {
                                     user.setUsername(client.getUsername());
-                                    if (client.getPassword() != null && !client.getPassword().isEmpty()) {
+                                    if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
                                         user.setPassword(passwordEncoder.encode(client.getPassword()));
                                     }
                                     userRepository.save(user);
                                 });
-                    } else if (client.getPassword() != null && !client.getPassword().isEmpty()) {
+                    } else if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
                         // Обновление пароля, если username не изменился
                         userRepository.findByUsername(existing.getUsername())
                                 .ifPresent(user -> {
@@ -120,7 +120,7 @@ public class ClientService {
                     existing.setName(client.getName());
                     existing.setPhone(client.getPhone());
                     existing.setUsername(client.getUsername());
-                    if (client.getPassword() != null && !client.getPassword().isEmpty()) {
+                    if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
                         existing.setPassword(passwordEncoder.encode(client.getPassword()));
                     }
                     existing.setSubscription(client.getSubscription());
