@@ -3,9 +3,11 @@ package kz.zhelezyaka.fitness_server.config;
 import kz.zhelezyaka.fitness_server.model.Client;
 import kz.zhelezyaka.fitness_server.model.Role;
 import kz.zhelezyaka.fitness_server.model.Subscription;
+import kz.zhelezyaka.fitness_server.model.Trainer;
 import kz.zhelezyaka.fitness_server.model.User;
 import kz.zhelezyaka.fitness_server.repository.ClientRepository;
 import kz.zhelezyaka.fitness_server.repository.SubscriptionRepository;
+import kz.zhelezyaka.fitness_server.repository.TrainerRepository;
 import kz.zhelezyaka.fitness_server.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,22 +32,24 @@ public class DataInitializer implements CommandLineRunner {
     private final ClientRepository clientRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TrainerRepository trainerRepository;
 
     /**
      * Конструктор для создания экземпляра {@code DataInitializer}.
      *
-     * @param userRepository репозиторий для работы с пользователями
-     * @param clientRepository репозиторий для работы с клиентами
+     * @param userRepository         репозиторий для работы с пользователями
+     * @param clientRepository       репозиторий для работы с клиентами
      * @param subscriptionRepository репозиторий для работы с абонементами
-     * @param passwordEncoder кодировщик паролей для шифрования паролей пользователей
+     * @param passwordEncoder        кодировщик паролей для шифрования паролей пользователей
      */
 
     public DataInitializer(UserRepository userRepository, ClientRepository clientRepository,
-                           SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder) {
+                           SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder, TrainerRepository trainerRepository, TrainerRepository trainerRepository1) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.trainerRepository = trainerRepository1;
     }
 
     /**
@@ -63,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     @Override
-    public void run(String... args){
+    public void run(String... args) {
         // Очищаем все данные из репозиториев
         clientRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();

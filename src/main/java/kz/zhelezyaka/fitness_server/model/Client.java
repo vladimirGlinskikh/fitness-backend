@@ -91,4 +91,8 @@ public class Client {
     @ManyToOne
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+
+    @ManyToOne
+    @JoinColumn(name = "trainer_id")
+    private Trainer trainer;
 }

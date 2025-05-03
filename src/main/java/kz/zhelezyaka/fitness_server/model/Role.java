@@ -32,5 +32,7 @@ public enum Role {
      * </p>
      */
 
-    CLIENT
+    CLIENT,
+
+    TRAINER
 }

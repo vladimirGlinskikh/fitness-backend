@@ -2,8 +2,10 @@ package kz.zhelezyaka.fitness_server.service;
 
 import kz.zhelezyaka.fitness_server.model.Client;
 import kz.zhelezyaka.fitness_server.model.Role;
+import kz.zhelezyaka.fitness_server.model.Trainer;
 import kz.zhelezyaka.fitness_server.model.User;
 import kz.zhelezyaka.fitness_server.repository.ClientRepository;
+import kz.zhelezyaka.fitness_server.repository.TrainerRepository;
 import kz.zhelezyaka.fitness_server.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,19 +27,21 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final TrainerRepository trainerRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
      * Конструктор для создания экземпляра {@code ClientService}.
      *
      * @param clientRepository репозиторий для работы с клиентами
-     * @param userRepository репозиторий для работы с пользователями
-     * @param passwordEncoder кодировщик паролей для шифрования паролей
+     * @param userRepository   репозиторий для работы с пользователями
+     * @param passwordEncoder  кодировщик паролей для шифрования паролей
      */
 
-    public ClientService(ClientRepository clientRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public ClientService(ClientRepository clientRepository, UserRepository userRepository, TrainerRepository trainerRepository, PasswordEncoder passwordEncoder) {
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
+        this.trainerRepository = trainerRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -53,7 +57,7 @@ public class ClientService {
      * @throws IllegalArgumentException если данные клиента не прошли валидацию или имя пользователя занято
      */
 
-    public Client createClient(Client client) {
+    public Client createClient(Client client, Long trainerId) {
         validateClient(client, true);
 
         // Проверка уникальности username
@@ -69,6 +73,12 @@ public class ClientService {
         user.setRole(Role.CLIENT);
         userRepository.save(user);
 
+        if (trainerId != null) {
+            Trainer trainer = trainerRepository.findById(trainerId)
+                    .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + trainerId + " не найден."));
+            client.setTrainer(trainer);
+        }
+
         // Шифрование пароля клиента
         client.setPassword(passwordEncoder.encode(client.getPassword()));
         return clientRepository.save(client);
@@ -82,14 +92,14 @@ public class ClientService {
      * если он указан.
      * </p>
      *
-     * @param id идентификатор клиента
+     * @param id     идентификатор клиента
      * @param client объект {@code Client} с обновлёнными данными
      * @return обновлённый объект {@code Client}
      * @throws IllegalArgumentException если клиент с указанным ID не найден,
-     *         данные не прошли валидацию или имя пользователя занято
+     *                                  данные не прошли валидацию или имя пользователя занято
      */
 
-    public Client updateClient(Long id, Client client) {
+    public Client updateClient(Long id, Client client, Long trainerId) {
         return clientRepository.findById(id)
                 .map(existing -> {
                     validateClient(client, false);
@@ -124,6 +134,15 @@ public class ClientService {
                         existing.setPassword(passwordEncoder.encode(client.getPassword()));
                     }
                     existing.setSubscription(client.getSubscription());
+
+                    if (trainerId != null) {
+                        Trainer trainer = trainerRepository.findById(trainerId)
+                                .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + trainerId + " не найден."));
+                        existing.setTrainer(trainer);
+                    } else {
+                        existing.setTrainer(null);
+                    }
+
                     return clientRepository.save(existing);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Клиент с ID " + id + " не найден."));
@@ -144,7 +163,7 @@ public class ClientService {
      * </p>
      *
      * @param client объект {@code Client} для проверки
-     * @param isNew флаг, указывающий, создаётся ли новый клиент ({@code true}) или обновляется существующий ({@code false})
+     * @param isNew  флаг, указывающий, создаётся ли новый клиент ({@code true}) или обновляется существующий ({@code false})
      * @throws IllegalArgumentException если данные не соответствуют правилам
      */
 

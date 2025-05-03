@@ -75,22 +75,24 @@ public class ClientController {
      */
 
     @PostMapping
-    public Client createClient(@RequestBody Client client) {
-        return clientService.createClient(client);
+    public Client createClient(@RequestBody Client client, @RequestParam(required = false) Long trainerId) {
+        return clientService.createClient(client, trainerId);
     }
 
     /**
      * Обновляет данные клиента по его идентификатору.
      *
-     * @param id идентификатор клиента
+     * @param id     идентификатор клиента
      * @param client объект {@code Client} с обновлёнными данными
      * @return объект {@code ResponseEntity} с обновлённым клиентом или статус 400, если обновление не удалось
      */
 
     @PutMapping("/{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client client) {
+    public ResponseEntity<Client> updateClient(@PathVariable Long id,
+                                               @RequestBody Client client,
+                                               @RequestParam(required = false) Long trainerId) {
         try {
-            Client updatedClient = clientService.updateClient(id, client);
+            Client updatedClient = clientService.updateClient(id, client, trainerId);
             return ResponseEntity.ok(updatedClient);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);

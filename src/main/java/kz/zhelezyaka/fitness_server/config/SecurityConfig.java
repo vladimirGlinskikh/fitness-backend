@@ -1,15 +1,19 @@
 package kz.zhelezyaka.fitness_server.config;
 
+import kz.zhelezyaka.fitness_server.model.User;
 import kz.zhelezyaka.fitness_server.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Collections;
 
 /**
  * Конфигурационный класс для настройки безопасности приложения фитнес-клуба.
@@ -64,6 +68,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Клиент может видеть только свои данные
                         .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT")
+                        // Тренер может видеть свои данные
+                        .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER")
                         // Разрешить доступ всем к эндпоинту аутентификации
                         .requestMatchers("/api/auth/**").permitAll()
                         // Только ADMIN может управлять пользователями
@@ -71,7 +77,9 @@ public class SecurityConfig {
                         // Только ADMIN может управлять абонементами
                         .requestMatchers("/api/subscriptions/**").hasRole("ADMIN")
                         // Только ADMIN может управлять всеми клиентами
-                        .requestMatchers("/api/clients/**").hasRole("ADMIN")
+                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "TRAINER")
+                        // Только ADMIN может управлять тренерами
+                        .requestMatchers("/api/trainers/**").hasRole("ADMIN")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )
@@ -93,10 +101,16 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return username -> {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+            return new org.springframework.security.core.userdetails.User(
+                    user.getUsername(),
+                    user.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+            );
+        };
     }
-
     /**
      * Создаёт кодировщик паролей на основе алгоритма BCrypt.
      *
