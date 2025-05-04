@@ -67,7 +67,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Клиент может видеть только свои данные
-                        .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT", "TRAINER")
+                        .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT")
                         // Тренер может видеть свои данные
                         .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER", "CLIENT")
                         // Разрешить доступ всем к эндпоинту аутентификации
