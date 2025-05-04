@@ -67,17 +67,17 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Клиент может видеть только свои данные
-                        .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT")
+                        .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT", "TRAINER")
                         // Тренер может видеть свои данные
-                        .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER")
+                        .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER", "CLIENT")
                         // Разрешить доступ всем к эндпоинту аутентификации
                         .requestMatchers("/api/auth/**").permitAll()
                         // Только ADMIN может управлять пользователями
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         // Только ADMIN может управлять абонементами
                         .requestMatchers("/api/subscriptions/**").hasRole("ADMIN")
-                        // Только ADMIN может управлять всеми клиентами
-                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "TRAINER")
+//                        // Только ADMIN может управлять всеми клиентами
+//                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "TRAINER")
                         // Только ADMIN может управлять тренерами
                         .requestMatchers("/api/trainers/**").hasRole("ADMIN")
                         // Все остальные запросы требуют аутентификации

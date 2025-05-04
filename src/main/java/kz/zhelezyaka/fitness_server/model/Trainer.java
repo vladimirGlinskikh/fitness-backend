@@ -1,5 +1,6 @@
 package kz.zhelezyaka.fitness_server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class Trainer {
     private String password;
 
     @OneToMany(mappedBy = "trainer")
+    @JsonIgnore
     private List<Client> clients = new ArrayList<>();
 
     /**
