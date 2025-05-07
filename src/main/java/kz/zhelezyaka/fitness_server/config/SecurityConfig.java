@@ -69,7 +69,7 @@ public class SecurityConfig {
                         // Клиент может видеть только свои данные
                         .requestMatchers("/api/clients/me").hasAnyRole("ADMIN", "CLIENT")
                         // Тренер может видеть свои данные
-                        .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER", "CLIENT")
+                        .requestMatchers("/api/trainers/me").hasAnyRole("ADMIN", "TRAINER")
                         // Разрешить доступ всем к эндпоинту аутентификации
                         .requestMatchers("/api/auth/**").permitAll()
                         // Только ADMIN может управлять пользователями
@@ -77,7 +77,7 @@ public class SecurityConfig {
                         // Только ADMIN может управлять абонементами
                         .requestMatchers("/api/subscriptions/**").hasRole("ADMIN")
 //                        // Только ADMIN может управлять всеми клиентами
-//                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "TRAINER")
+                        .requestMatchers("/api/clients/**").hasAnyRole("ADMIN", "TRAINER")
                         // Только ADMIN может управлять тренерами
                         .requestMatchers("/api/trainers/**").hasRole("ADMIN")
                         // Все остальные запросы требуют аутентификации
@@ -102,8 +102,13 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
+            System.out.println("Attempting to load user: " + username);
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                    .orElseThrow(() -> {
+                        System.out.println("User not found: " + username);
+                        return new UsernameNotFoundException("User not found: " + username);
+                    });
+            System.out.println("User loaded: " + user.getUsername() + ", Role: " + user.getRole());
             return new org.springframework.security.core.userdetails.User(
                     user.getUsername(),
                     user.getPassword(),
