@@ -8,7 +8,7 @@
         <version>3.4.4</version>
         <relativePath/>
     </parent>
-    <groupId>kz.zhelezyaka</groupId>
+    <groupId>org.example</groupId>
     <artifactId>fitness-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>fitness-server</name>
