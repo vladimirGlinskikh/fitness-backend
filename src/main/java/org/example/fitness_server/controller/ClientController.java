@@ -119,7 +119,15 @@ public class ClientController {
      */
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteClient(@PathVariable Long id, Authentication authentication) {
+        String currentUsername = authentication.getName();
+        Client clientToDelete = clientRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Клиент с ID "  + id + " не найден"));
+
+        if (clientToDelete.getUsername().equals(currentUsername)) {
+            return ResponseEntity.status(403).body(null);
+        }
+
         if (clientRepository.existsById(id)) {
             clientRepository.deleteById(id);
             return ResponseEntity.ok().build();
