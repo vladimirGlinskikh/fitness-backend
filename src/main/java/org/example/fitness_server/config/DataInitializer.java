@@ -71,6 +71,7 @@ public class DataInitializer implements CommandLineRunner {
         clientRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
         subscriptionRepository.deleteAllInBatch();
+        trainerRepository.deleteAllInBatch();
 
         // Создаём абонементы
         Subscription subscription1 = new Subscription();
