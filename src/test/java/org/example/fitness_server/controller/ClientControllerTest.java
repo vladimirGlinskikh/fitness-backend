@@ -1,169 +1,259 @@
-//package kz.zhelezyaka.fitness_server.controller;
-//
-//import kz.zhelezyaka.fitness_server.exception.GlobalExceptionHandler;
-//import kz.zhelezyaka.fitness_server.model.Client;
-//import kz.zhelezyaka.fitness_server.model.Subscription;
-//import kz.zhelezyaka.fitness_server.repository.ClientRepository;
-//import kz.zhelezyaka.fitness_server.service.ClientService;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.http.MediaType;
-//import org.springframework.security.test.context.support.WithMockUser;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//
-//import java.util.Collections;
-//import java.util.Optional;
-//
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//class ClientControllerTest {
-//
-//    private MockMvc mockMvc;
-//
-//    @Mock
-//    private ClientRepository clientRepository;
-//
-//    @Mock
-//    private ClientService clientService;
-//
-//    @InjectMocks
-//    private ClientController clientController;
-//
-//    private Client client;
-//
-//    @BeforeEach
-//    void setUp() {
-//        // Инициализация MockMvc с контроллером и обработчиком исключений
-//        mockMvc = MockMvcBuilders
-//                .standaloneSetup(clientController)
-//                .setControllerAdvice(new GlobalExceptionHandler())
-//                .build();
-//
-//        Subscription subscription = new Subscription();
-//        subscription.setId(1L);
-//        subscription.setType("Месячный");
-//        subscription.setCost(5000.00);
-//        subscription.setDurationDays(30);
-//
-//        client = new Client();
-//        client.setId(1L);
-//        client.setName("Иван Иванов");
-//        client.setPhone("+79876543210");
-//        client.setUsername("ivan");
-//        client.setPassword("encodedPassword");
-//        client.setSubscription(subscription);
-//    }
-//
-//    @Test
-//    void testEndpoint_ShouldReturnSuccessMessage() throws Exception {
-//        mockMvc.perform(get("/api/clients/test"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("Test endpoint is working!"));
-//    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void getAllClients_ShouldReturnListOfClients() throws Exception {
-//        when(clientRepository.findAll()).thenReturn(Collections.singletonList(client));
-//
-//        mockMvc.perform(get("/api/clients"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].id").value(1L))
-//                .andExpect(jsonPath("$[0].name").value("Иван Иванов"))
-//                .andExpect(jsonPath("$[0].username").value("ivan"));
-//
-//        verify(clientRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void getClientById_WhenClientExists_ShouldReturnClient() throws Exception {
-//        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
-//
-//        mockMvc.perform(get("/api/clients/1"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(1L))
-//                .andExpect(jsonPath("$.name").value("Иван Иванов"));
-//
-//        verify(clientRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void getClientById_WhenClientDoesNotExist_ShouldReturnNotFound() throws Exception {
-//        when(clientRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        mockMvc.perform(get("/api/clients/1"))
-//                .andExpect(status().isNotFound());
-//
-//        verify(clientRepository, times(1)).findById(1L);
-//    }
-//
-////    @Test
-////    @WithMockUser(roles = "ADMIN")
-////    void createClient_ShouldReturnCreatedClient() throws Exception {
-////        when(clientService.createClient(any(Client.class))).thenReturn(client);
-////
-////        String clientJson = "{\"name\":\"Иван Иванов\",\"phone\":\"+79876543210\",\"username\":\"ivan\",\"password\":\"ivan123\",\"subscription\":{\"id\":1}}";
-////
-////        mockMvc.perform(post("/api/clients")
-////                        .contentType(MediaType.APPLICATION_JSON)
-////                        .content(clientJson))
-////                .andExpect(status().isOk())
-////                .andExpect(jsonPath("$.id").value(1L))
-////                .andExpect(jsonPath("$.name").value("Иван Иванов"));
-////
-////        verify(clientService, times(1)).createClient(any(Client.class));
-////    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void updateClient_WhenClientExists_ShouldReturnUpdatedClient() throws Exception {
-//        when(clientService.updateClient(eq(1L), any(Client.class))).thenReturn(client);
-//
-//        String clientJson = "{\"name\":\"Иван Иванов\",\"phone\":\"+79876543210\",\"username\":\"ivan\",\"password\":\"newPassword\",\"subscription\":{\"id\":1}}";
-//
-//        mockMvc.perform(put("/api/clients/1")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(clientJson))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(1L))
-//                .andExpect(jsonPath("$.name").value("Иван Иванов"));
-//
-//        verify(clientService, times(1)).updateClient(eq(1L), any(Client.class));
-//    }
-//
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void deleteClient_WhenClientExists_ShouldReturnOk() throws Exception {
-//        when(clientRepository.existsById(1L)).thenReturn(true);
-//
-//        mockMvc.perform(delete("/api/clients/1"))
-//                .andExpect(status().isOk());
-//
-//        verify(clientRepository, times(1)).existsById(1L);
-//        verify(clientRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    void deleteClient_WhenClientDoesNotExist_ShouldReturnNotFound() throws Exception {
-//        when(clientRepository.existsById(1L)).thenReturn(false);
-//
-//        mockMvc.perform(delete("/api/clients/1"))
-//                .andExpect(status().isNotFound());
-//
-//        verify(clientRepository, times(1)).existsById(1L);
-//        verify(clientRepository, never()).deleteById(1L);
-//    }
-//}
+package org.example.fitness_server.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.fitness_server.model.Client;
+import org.example.fitness_server.model.Subscription;
+import org.example.fitness_server.model.Trainer;
+import org.example.fitness_server.repository.ClientRepository;
+import org.example.fitness_server.service.ClientService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@ExtendWith(MockitoExtension.class)
+class ClientControllerTest {
+
+    @Mock
+    private ClientService clientService;
+
+    @Mock
+    private ClientRepository clientRepository;
+
+    @InjectMocks
+    private ClientController clientController;
+
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+    private Client client;
+    private Subscription subscription;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(clientController).build();
+        objectMapper = new ObjectMapper();
+
+        subscription = new Subscription();
+        subscription.setId(1L);
+        subscription.setType("Месячный");
+        subscription.setCost(5000.0);
+        subscription.setDurationDays(30);
+
+        Trainer trainer = new Trainer();
+        trainer.setId(1L);
+        trainer.setName("Тренер Иванов");
+        trainer.setUsername("trainer1");
+        trainer.setPassword("encodedPassword");
+
+        client = new Client();
+        client.setId(1L);
+        client.setName("Иван Иванов");
+        client.setPhone("+79876543210");
+        client.setUsername("ivan");
+        client.setPassword("encodedPassword");
+        client.setSubscription(subscription);
+        client.setTrainer(trainer);
+    }
+
+    @Test
+    void getAllClients_ReturnsPagedClients() throws Exception {
+        Pageable pageable = PageRequest.of(0, 50);
+        Page<Client> clientPage = new PageImpl<>(Collections.singletonList(client), pageable, 1);
+
+        when(clientRepository.findAll(pageable)).thenReturn(clientPage);
+
+        mockMvc.perform(get("/api/clients")
+                        .param("page", "0")
+                        .param("size", "50"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id", is(1)))
+                .andExpect(jsonPath("$.content[0].name", is("Иван Иванов")))
+                .andExpect(jsonPath("$.content[0].username", is("ivan")));
+
+        verify(clientRepository).findAll(pageable);
+    }
+
+    @Test
+    void getClientCount_ReturnsCount() throws Exception {
+        when(clientRepository.count()).thenReturn(5L);
+
+        mockMvc.perform(get("/api/clients/count"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+
+        verify(clientRepository).count();
+    }
+
+    @Test
+    void getClientById_ClientExists_ReturnsClient() throws Exception {
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        mockMvc.perform(get("/api/clients/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Иван Иванов")))
+                .andExpect(jsonPath("$.username", is("ivan")));
+
+        verify(clientRepository).findById(1L);
+    }
+
+    @Test
+    void getClientById_ClientNotFound_Returns404() throws Exception {
+        when(clientRepository.findById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/clients/1"))
+                .andExpect(status().isNotFound());
+
+        verify(clientRepository).findById(1L);
+    }
+
+    @Test
+    void createClient_ValidClient_ReturnsCreatedClient() throws Exception {
+        Client newClient = new Client();
+        newClient.setName("Мария Петрова");
+        newClient.setPhone("+79991234567");
+        newClient.setUsername("maria");
+        newClient.setPassword("maria123");
+        newClient.setSubscription(subscription);
+
+        when(clientService.createClient(any(Client.class), any())).thenReturn(client);
+
+        mockMvc.perform(post("/api/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newClient)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Иван Иванов")));
+
+        verify(clientService).createClient(any(Client.class), any());
+    }
+
+    @Test
+    void updateClient_ClientExists_ReturnsUpdatedClient() throws Exception {
+        Client updatedClient = new Client();
+        updatedClient.setName("Иван Петров");
+        updatedClient.setPhone("+79991234567");
+        updatedClient.setUsername("ivan");
+        updatedClient.setPassword("newPassword");
+        updatedClient.setSubscription(subscription);
+
+        when(clientService.updateClient(eq(1L), any(Client.class), any())).thenReturn(client);
+
+        mockMvc.perform(put("/api/clients/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedClient)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Иван Иванов")));
+
+        verify(clientService).updateClient(eq(1L), any(Client.class), any());
+    }
+
+    @Test
+    void updateClient_ClientNotFound_Returns400() throws Exception {
+        Client updatedClient = new Client();
+        updatedClient.setName("Иван Петров");
+        updatedClient.setPhone("+79991234567");
+        updatedClient.setUsername("ivan");
+        updatedClient.setPassword("newPassword");
+        updatedClient.setSubscription(subscription);
+
+        when(clientService.updateClient(eq(1L), any(Client.class), any()))
+                .thenThrow(new IllegalArgumentException("Клиент с ID 1 не найден."));
+
+        mockMvc.perform(put("/api/clients/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedClient)))
+                .andExpect(status().isBadRequest());
+
+        verify(clientService).updateClient(eq(1L), any(Client.class), any());
+    }
+
+    @Test
+    void deleteClient_ClientExists_Returns200() throws Exception {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("admin");
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(clientRepository.existsById(1L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/clients/1")
+                        .principal(auth))
+                .andExpect(status().isOk());
+
+        verify(clientRepository).deleteById(1L);
+    }
+
+    @Test
+    void deleteClient_ClientNotFound_Returns404() throws Exception {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("admin");
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(clientRepository.existsById(1L)).thenReturn(false);
+
+        mockMvc.perform(delete("/api/clients/1")
+                        .principal(auth))
+                .andExpect(status().isNotFound());
+
+        verify(clientRepository, never()).deleteById(1L);
+    }
+
+    @Test
+    void deleteClient_SelfDeletion_Returns403() throws Exception {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("ivan");
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+
+        mockMvc.perform(delete("/api/clients/1")
+                        .principal(auth))
+                .andExpect(status().isForbidden());
+
+        verify(clientRepository, never()).deleteById(1L);
+    }
+
+    @Test
+    void getCurrentClient_ClientExists_ReturnsClient() throws Exception {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("ivan");
+        when(clientRepository.findByUsername("ivan")).thenReturn(Optional.of(client));
+
+        mockMvc.perform(get("/api/clients/me")
+                        .principal(auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Иван Иванов")));
+
+        verify(clientRepository).findByUsername("ivan");
+    }
+
+    @Test
+    void getCurrentClient_ClientNotFound_Returns404() throws Exception {
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("ivan");
+        when(clientRepository.findByUsername("ivan")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/clients/me")
+                        .principal(auth))
+                .andExpect(status().isNotFound());
+
+        verify(clientRepository).findByUsername("ivan");
+    }
+}

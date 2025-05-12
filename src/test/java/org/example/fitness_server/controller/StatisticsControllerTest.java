@@ -1,21 +1,27 @@
 package org.example.fitness_server.controller;
 
+import org.example.fitness_server.model.Subscription;
 import org.example.fitness_server.repository.ClientRepository;
 import org.example.fitness_server.repository.SubscriptionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
 import java.util.List;
 
-class StatisticsControllerTest {
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-    @InjectMocks
-    private StatisticsController controller;
+@ExtendWith(MockitoExtension.class)
+class StatisticsControllerTest {
 
     @Mock
     private ClientRepository clientRepository;
@@ -23,23 +29,53 @@ class StatisticsControllerTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
+    @InjectMocks
+    private StatisticsController statisticsController;
+
+    private MockMvc mockMvc;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // инициализация mock объектов
+        mockMvc = MockMvcBuilders.standaloneSetup(statisticsController).build();
     }
 
     @Test
-    void testGetStatisticsWithNoSubscriptions() {
-        // Подготовка фиктивных данных
-        given(clientRepository.count()).willReturn(5L); // имитируем наличие 5 клиентов
-        given(subscriptionRepository.findAll()).willReturn(List.of()); // нет активных абонементов
+    void getStatistics_ReturnsStatistics() throws Exception {
+        Subscription subscription1 = new Subscription();
+        subscription1.setCost(5000.0);
 
-        // Выполнение метода контроллера
-        var result = controller.getStatistics();
+        Subscription subscription2 = new Subscription();
+        subscription2.setCost(45000.0);
 
-        // Проверка результатов
-        assertThat(result.get("totalClients")).isEqualTo(5L);
-        assertThat(result.get("totalSubscriptions")).isEqualTo(0L);
-        assertThat(result.get("averageSubscriptionCost")).isEqualTo(0.0); // средняя стоимость должна быть равна нулю
+        when(clientRepository.count()).thenReturn(5L);
+        when(subscriptionRepository.count()).thenReturn(2L);
+        when(subscriptionRepository.findAll()).thenReturn(Arrays.asList(subscription1, subscription2));
+
+        mockMvc.perform(get("/api/statistics"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalClients", is(5)))
+                .andExpect(jsonPath("$.totalSubscriptions", is(2)))
+                .andExpect(jsonPath("$.averageSubscriptionCost", is(25000.0)));
+
+        verify(clientRepository).count();
+        verify(subscriptionRepository).count();
+        verify(subscriptionRepository).findAll();
+    }
+
+    @Test
+    void getStatistics_NoSubscriptions_ReturnsZeroAverageCost() throws Exception {
+        when(clientRepository.count()).thenReturn(5L);
+        when(subscriptionRepository.count()).thenReturn(0L);
+        when(subscriptionRepository.findAll()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/statistics"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalClients", is(5)))
+                .andExpect(jsonPath("$.totalSubscriptions", is(0)))
+                .andExpect(jsonPath("$.averageSubscriptionCost", is(0.0)));
+
+        verify(clientRepository).count();
+        verify(subscriptionRepository).count();
+        verify(subscriptionRepository).findAll();
     }
 }
