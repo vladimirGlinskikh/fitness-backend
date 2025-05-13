@@ -2,9 +2,10 @@ package org.example.fitness_server.service;
 
 import org.example.fitness_server.model.Role;
 import org.example.fitness_server.model.Trainer;
-import org.example.fitness_server.model.User;
+import org.example.fitness_server.repository.ClientRepository;
 import org.example.fitness_server.repository.TrainerRepository;
 import org.example.fitness_server.repository.UserRepository;
+import org.example.fitness_server.util.UserUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TrainerService {
-
+    private final ClientRepository clientRepository;
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public TrainerService(TrainerRepository trainerRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public TrainerService(ClientRepository clientRepository, TrainerRepository trainerRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.clientRepository = clientRepository;
         this.trainerRepository = trainerRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -27,16 +29,8 @@ public class TrainerService {
     public Trainer createTrainer(Trainer trainer) {
         validateTrainer(trainer, true);
 
-        if (userRepository.findByUsername(trainer.getUsername()).isPresent() ||
-                trainerRepository.findByUsername(trainer.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Имя пользователя уже занято.");
-        }
-
-        User user = new User();
-        user.setUsername(trainer.getUsername());
-        user.setPassword(passwordEncoder.encode(trainer.getPassword()));
-        user.setRole(Role.TRAINER);
-        userRepository.save(user);
+        // Используем утилитный метод для проверки имени и создания User
+        UserUtil.checkUsernameAndCreateUser(trainer, Role.TRAINER, userRepository, clientRepository, trainerRepository, passwordEncoder);
 
         trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
         return trainerRepository.save(trainer);

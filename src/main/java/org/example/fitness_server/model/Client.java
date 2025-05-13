@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "clients")
-public class Client {
+public class Client implements UserEntity{
 
     /**
      * Конструктор по умолчанию.

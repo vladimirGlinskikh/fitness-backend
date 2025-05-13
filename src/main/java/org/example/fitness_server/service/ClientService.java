@@ -3,10 +3,10 @@ package org.example.fitness_server.service;
 import org.example.fitness_server.model.Client;
 import org.example.fitness_server.model.Role;
 import org.example.fitness_server.model.Trainer;
-import org.example.fitness_server.model.User;
 import org.example.fitness_server.repository.ClientRepository;
 import org.example.fitness_server.repository.TrainerRepository;
 import org.example.fitness_server.repository.UserRepository;
+import org.example.fitness_server.util.UserUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,18 +60,14 @@ public class ClientService {
     public Client createClient(Client client, Long trainerId) {
         validateClient(client, true);
 
-        // Проверка уникальности username
-        if (userRepository.findByUsername(client.getUsername()).isPresent() ||
-                clientRepository.findByUsername(client.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Имя пользователя уже занято.");
-        }
-
-        // Создание User
-        User user = new User();
-        user.setUsername(client.getUsername());
-        user.setPassword(passwordEncoder.encode(client.getPassword()));
-        user.setRole(Role.CLIENT);
-        userRepository.save(user);
+        // Используем утилитный метод для проверки имени и создания User
+        UserUtil.checkUsernameAndCreateUser(
+                client,
+                Role.CLIENT,
+                userRepository,
+                clientRepository,
+                trainerRepository,
+                passwordEncoder);
 
         if (trainerId != null) {
             Trainer trainer = trainerRepository.findById(trainerId)

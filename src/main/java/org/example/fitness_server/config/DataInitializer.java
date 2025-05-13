@@ -43,12 +43,12 @@ public class DataInitializer implements CommandLineRunner {
      */
 
     public DataInitializer(UserRepository userRepository, ClientRepository clientRepository,
-                           SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder, TrainerRepository trainerRepository, TrainerRepository trainerRepository1) {
+                           SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder, TrainerRepository trainerRepository) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.passwordEncoder = passwordEncoder;
-        this.trainerRepository = trainerRepository1;
+        this.trainerRepository = trainerRepository;
     }
 
     /**
