@@ -54,8 +54,8 @@ public class UserUtil {
         }
     }
 
-    public static <T extends UserEntity> T updateEntity(T existing, T updated,
-                                                        PasswordEncoder passwordEncoder, Runnable trainerLogic) {
+    public static <T extends UserEntity> void updateEntity(T existing, T updated,
+                                                           PasswordEncoder passwordEncoder, Runnable trainerLogic) {
         existing.setName(updated.getName());
         existing.setUsername(updated.getUsername());
         if (updated.getPassword() != null && !updated.getPassword().startsWith("$2a$")) {
@@ -64,6 +64,5 @@ public class UserUtil {
         if (trainerLogic != null) {
             trainerLogic.run();
         }
-        return existing;
     }
 }

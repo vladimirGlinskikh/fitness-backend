@@ -103,25 +103,21 @@ public class ClientService {
                     // Обновление имени пользователя и пароля для User
                     UserUtil.updateUserIfNeeded(existing, client, userRepository, clientRepository, trainerRepository, passwordEncoder);
 
-                    // Копируем existing в effectively final переменную
-                    Client updatedClient = existing;
-
                     // Обновление полей клиента
-                    Client finalUpdatedClient = updatedClient;
-                    updatedClient = UserUtil.updateEntity(updatedClient, client, passwordEncoder, () -> {
+                    UserUtil.updateEntity(existing, client, passwordEncoder, () -> {
                         if (trainerId != null) {
                             Trainer trainer = trainerRepository.findById(trainerId)
                                     .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + trainerId + " не найден."));
-                            finalUpdatedClient.setTrainer(trainer);
+                            existing.setTrainer(trainer);
                         } else {
-                            finalUpdatedClient.setTrainer(null);
+                            existing.setTrainer(null);
                         }
                     });
 
-                    updatedClient.setPhone(client.getPhone());
-                    updatedClient.setSubscription(client.getSubscription());
+                    existing.setPhone(client.getPhone());
+                    existing.setSubscription(client.getSubscription());
 
-                    return clientRepository.save(updatedClient);
+                    return clientRepository.save(existing);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Клиент с ID " + id + " не найден."));
     }

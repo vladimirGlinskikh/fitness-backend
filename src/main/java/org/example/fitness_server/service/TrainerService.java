@@ -51,7 +51,7 @@ public class TrainerService {
                             passwordEncoder);
 
                     // Обновление полей тренера
-                    existing = UserUtil.updateEntity(existing, trainer, passwordEncoder, null);
+                    UserUtil.updateEntity(existing, trainer, passwordEncoder, null);
 
                     return trainerRepository.save(existing);
                 })
