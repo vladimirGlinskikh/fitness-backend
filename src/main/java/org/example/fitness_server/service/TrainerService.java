@@ -40,32 +40,19 @@ public class TrainerService {
         return trainerRepository.findById(id)
                 .map(existing -> {
                     validateTrainer(trainer, false);
-                    if (!existing.getUsername().equals(trainer.getUsername())) {
-                        if (userRepository.findByUsername(trainer.getUsername()).isPresent() ||
-                                trainerRepository.findByUsername(trainer.getUsername()).isPresent()) {
-                            throw new IllegalArgumentException("Имя пользователя уже занято.");
-                        }
-                        userRepository.findByUsername(existing.getUsername())
-                                .ifPresent(user -> {
-                                    user.setUsername(trainer.getUsername());
-                                    if (trainer.getPassword() != null && !trainer.getPassword().startsWith("$2a$")) {
-                                        user.setPassword(passwordEncoder.encode(trainer.getPassword()));
-                                    }
-                                    userRepository.save(user);
-                                });
-                    } else if (trainer.getPassword() != null && !trainer.getPassword().startsWith("$2a$")) {
-                        userRepository.findByUsername(existing.getUsername())
-                                .ifPresent(user -> {
-                                    user.setPassword(passwordEncoder.encode(trainer.getPassword()));
-                                    userRepository.save(user);
-                                });
-                    }
 
-                    existing.setName(trainer.getName());
-                    existing.setUsername(trainer.getUsername());
-                    if (trainer.getPassword() != null && !trainer.getPassword().startsWith("$2a$")) {
-                        existing.setPassword(passwordEncoder.encode(trainer.getPassword()));
-                    }
+                    // Обновление имени пользователя и пароля для User
+                    UserUtil.updateUserIfNeeded(
+                            existing,
+                            trainer,
+                            userRepository,
+                            clientRepository,
+                            trainerRepository,
+                            passwordEncoder);
+
+                    // Обновление полей тренера
+                    existing = UserUtil.updateEntity(existing, trainer, passwordEncoder, null);
+
                     return trainerRepository.save(existing);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + id + " не найден."));

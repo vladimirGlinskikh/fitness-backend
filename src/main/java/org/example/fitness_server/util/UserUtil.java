@@ -27,4 +27,43 @@ public class UserUtil {
         user.setRole(role);
         userRepository.save(user);
     }
+
+    public static void updateUserIfNeeded(UserEntity existing, UserEntity updated,
+                                          UserRepository userRepository, ClientRepository clientRepository,
+                                          TrainerRepository trainerRepository, PasswordEncoder passwordEncoder) {
+        if (!existing.getUsername().equals(updated.getUsername())) {
+            if (userRepository.findByUsername(updated.getUsername()).isPresent() ||
+                    clientRepository.findByUsername(updated.getUsername()).isPresent() ||
+                    trainerRepository.findByUsername(updated.getUsername()).isPresent()) {
+                throw new IllegalArgumentException("Имя пользователя уже занято.");
+            }
+            userRepository.findByUsername(existing.getUsername())
+                    .ifPresent(user -> {
+                        user.setUsername(updated.getUsername());
+                        if (updated.getPassword() != null && !updated.getPassword().startsWith("$2a$")) {
+                            user.setPassword(passwordEncoder.encode(updated.getPassword()));
+                        }
+                        userRepository.save(user);
+                    });
+        } else if (updated.getPassword() != null && !updated.getPassword().startsWith("$2a$")) {
+            userRepository.findByUsername(existing.getUsername())
+                    .ifPresent(user -> {
+                        user.setPassword(passwordEncoder.encode(updated.getPassword()));
+                        userRepository.save(user);
+                    });
+        }
+    }
+
+    public static <T extends UserEntity> T updateEntity(T existing, T updated,
+                                                        PasswordEncoder passwordEncoder, Runnable trainerLogic) {
+        existing.setName(updated.getName());
+        existing.setUsername(updated.getUsername());
+        if (updated.getPassword() != null && !updated.getPassword().startsWith("$2a$")) {
+            existing.setPassword(passwordEncoder.encode(updated.getPassword()));
+        }
+        if (trainerLogic != null) {
+            trainerLogic.run();
+        }
+        return existing;
+    }
 }

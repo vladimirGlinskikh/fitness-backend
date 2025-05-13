@@ -99,47 +99,29 @@ public class ClientService {
         return clientRepository.findById(id)
                 .map(existing -> {
                     validateClient(client, false);
-                    // Проверка уникальности username, если он изменён
-                    if (!existing.getUsername().equals(client.getUsername())) {
-                        if (userRepository.findByUsername(client.getUsername()).isPresent() ||
-                                clientRepository.findByUsername(client.getUsername()).isPresent()) {
-                            throw new IllegalArgumentException("Имя пользователя уже занято.");
+
+                    // Обновление имени пользователя и пароля для User
+                    UserUtil.updateUserIfNeeded(existing, client, userRepository, clientRepository, trainerRepository, passwordEncoder);
+
+                    // Копируем existing в effectively final переменную
+                    Client updatedClient = existing;
+
+                    // Обновление полей клиента
+                    Client finalUpdatedClient = updatedClient;
+                    updatedClient = UserUtil.updateEntity(updatedClient, client, passwordEncoder, () -> {
+                        if (trainerId != null) {
+                            Trainer trainer = trainerRepository.findById(trainerId)
+                                    .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + trainerId + " не найден."));
+                            finalUpdatedClient.setTrainer(trainer);
+                        } else {
+                            finalUpdatedClient.setTrainer(null);
                         }
-                        // Обновление User
-                        userRepository.findByUsername(existing.getUsername())
-                                .ifPresent(user -> {
-                                    user.setUsername(client.getUsername());
-                                    if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
-                                        user.setPassword(passwordEncoder.encode(client.getPassword()));
-                                    }
-                                    userRepository.save(user);
-                                });
-                    } else if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
-                        // Обновление пароля, если username не изменился
-                        userRepository.findByUsername(existing.getUsername())
-                                .ifPresent(user -> {
-                                    user.setPassword(passwordEncoder.encode(client.getPassword()));
-                                    userRepository.save(user);
-                                });
-                    }
+                    });
 
-                    existing.setName(client.getName());
-                    existing.setPhone(client.getPhone());
-                    existing.setUsername(client.getUsername());
-                    if (client.getPassword() != null && !client.getPassword().startsWith("$2a$")) {
-                        existing.setPassword(passwordEncoder.encode(client.getPassword()));
-                    }
-                    existing.setSubscription(client.getSubscription());
+                    updatedClient.setPhone(client.getPhone());
+                    updatedClient.setSubscription(client.getSubscription());
 
-                    if (trainerId != null) {
-                        Trainer trainer = trainerRepository.findById(trainerId)
-                                .orElseThrow(() -> new IllegalArgumentException("Тренер с ID " + trainerId + " не найден."));
-                        existing.setTrainer(trainer);
-                    } else {
-                        existing.setTrainer(null);
-                    }
-
-                    return clientRepository.save(existing);
+                    return clientRepository.save(updatedClient);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Клиент с ID " + id + " не найден."));
     }
