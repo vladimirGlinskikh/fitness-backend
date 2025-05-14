@@ -6,6 +6,7 @@ import org.example.fitness_server.model.Trainer;
 import org.example.fitness_server.repository.ClientRepository;
 import org.example.fitness_server.repository.TrainerRepository;
 import org.example.fitness_server.repository.UserRepository;
+import org.example.fitness_server.util.UserEntityValidator;
 import org.example.fitness_server.util.UserUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -142,40 +143,7 @@ public class ClientService {
      */
 
     private void validateClient(Client client, boolean isNew) {
-        if (client.getName() == null || client.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может быть пустым.");
-        }
-        String cleanedName = client.getName().trim().replaceAll("\\s+", " ");
-        if (cleanedName.length() < 2 || cleanedName.length() > 50) {
-            throw new IllegalArgumentException("Имя должно содержать от 2 до 50 символов.");
-        }
-        if (!cleanedName.matches("^[a-zA-Zа-яА-ЯёЁ\\s-]+$")) {
-            throw new IllegalArgumentException("Имя может содержать только буквы, пробелы и дефисы.");
-        }
-        client.setName(cleanedName);
-
-        if (client.getPhone() == null || !client.getPhone().matches("\\+7\\d{10}")) {
-            throw new IllegalArgumentException("Номер телефона должен начинаться с +7 и содержать 10 цифр.");
-        }
-
-        if (client.getUsername() == null || client.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя пользователя не может быть пустым.");
-        }
-        if (!client.getUsername().matches("^[a-zA-Z0-9_]{3,20}$")) {
-            throw new IllegalArgumentException("Имя пользователя должно содержать 3–20 символов (буквы, цифры, подчёркивание).");
-        }
-
-        if (isNew) {
-            if (client.getPassword() == null || client.getPassword().trim().isEmpty()) {
-                throw new IllegalArgumentException("Пароль не может быть пустым при создании клиента.");
-            }
-            if (client.getPassword().length() < 6) {
-                throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов.");
-            }
-        }
-
-        if (client.getSubscription() == null) {
-            throw new IllegalArgumentException("Абонемент должен быть выбран.");
-        }
+        // Общая валидация для UserEntity
+        UserEntityValidator.validateUserEntity(client, "клиента", isNew);
     }
 }

@@ -5,6 +5,7 @@ import org.example.fitness_server.model.Trainer;
 import org.example.fitness_server.repository.ClientRepository;
 import org.example.fitness_server.repository.TrainerRepository;
 import org.example.fitness_server.repository.UserRepository;
+import org.example.fitness_server.util.UserEntityValidator;
 import org.example.fitness_server.util.UserUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,33 +60,7 @@ public class TrainerService {
     }
 
     private void validateTrainer(Trainer trainer, boolean isNew) {
-        if (trainer.getName() == null || trainer.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может быть пустым.");
-        }
-        String cleanedName = trainer.getName().trim().replaceAll("\\s+", " ");
-        if (cleanedName.length() < 2 || cleanedName.length() > 50) {
-            throw new IllegalArgumentException("Имя должно содержать от 2 до 50 символов.");
-        }
-        if (!cleanedName.matches("^[a-zA-Zа-яА-ЯёЁ\\s-]+$")) {
-            throw new IllegalArgumentException("Имя может содержать только буквы, пробелы и дефисы.");
-        }
-        trainer.setName(cleanedName);
-
-        if (trainer.getUsername() == null || trainer.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя пользователя не может быть пустым.");
-        }
-        if (!trainer.getUsername().matches("^[a-zA-Z0-9_]{3,20}$")) {
-            throw new IllegalArgumentException("Имя пользователя должно содержать 3–20 символов (буквы, цифры, подчёркивание).");
-        }
-
-        if (isNew) {
-            String password = trainer.getPassword();
-            if (password == null || password.trim().isEmpty()) {
-                throw new IllegalArgumentException("Пароль не может быть пустым при создании тренера.");
-            }
-            if (password.length() < 6) {
-                throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов.");
-            }
-        }
+        // Общая валидация для UserEntity
+        UserEntityValidator.validateUserEntity(trainer, "тренера", isNew);
     }
 }
