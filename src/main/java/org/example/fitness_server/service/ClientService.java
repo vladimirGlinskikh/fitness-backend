@@ -12,10 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
- * Сервис для управления клиентами в приложении фитнес-клуба.
+ * Сервис для управления клиентами фитнес-клуба.
  * <p>
- * Этот класс предоставляет методы для создания и обновления клиентов,
- * включая валидацию данных и синхронизацию с пользователями.
+ * Этот класс предоставляет методы для создания и обновления данных клиентов,
+ * включая валидацию, синхронизацию с сущностью {@code User} и назначение тренеров.
+ * Использует репозитории {@code ClientRepository}, {@code UserRepository} и
+ * {@code TrainerRepository}, а также утилиты {@code UserUtil} и {@code UserEntityValidator}
+ * для общей логики.
  * </p>
  *
  * @author Милана
@@ -32,11 +35,15 @@ public class ClientService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Конструктор для создания экземпляра {@code ClientService}.
+     * Конструктор сервиса для инициализации зависимостей.
+     * <p>
+     * Принимает репозитории и кодировщик паролей для использования в методах сервиса.
+     * </p>
      *
-     * @param clientRepository репозиторий для работы с клиентами
-     * @param userRepository   репозиторий для работы с пользователями
-     * @param passwordEncoder  кодировщик паролей для шифрования паролей
+     * @param clientRepository   репозиторий для работы с клиентами
+     * @param userRepository     репозиторий для работы с пользователями
+     * @param trainerRepository  репозиторий для работы с тренерами
+     * @param passwordEncoder    кодировщик паролей для шифрования
      */
 
     public ClientService(ClientRepository clientRepository, UserRepository userRepository, TrainerRepository trainerRepository, PasswordEncoder passwordEncoder) {
@@ -47,15 +54,17 @@ public class ClientService {
     }
 
     /**
-     * Создаёт нового клиента.
+     * Создаёт нового клиента на основе предоставленных данных.
      * <p>
      * Выполняет валидацию данных клиента, проверяет уникальность имени пользователя,
      * создаёт связанного пользователя с ролью {@code CLIENT} и шифрует пароль.
+     * Если указан {@code trainerId}, назначает тренера клиенту.
      * </p>
      *
-     * @param client объект {@code Client} с данными нового клиента
+     * @param client    объект {@code Client} с данными нового клиента
+     * @param trainerId идентификатор тренера (опционально, может быть {@code null})
      * @return созданный объект {@code Client}
-     * @throws IllegalArgumentException если данные клиента не прошли валидацию или имя пользователя занято
+     * @throws IllegalArgumentException если данные не прошли валидацию или имя пользователя занято
      */
 
     public Client createClient(Client client, Long trainerId) {
@@ -82,18 +91,17 @@ public class ClientService {
     }
 
     /**
-     * Обновляет данные клиента по его идентификатору.
+     * Обновляет данные существующего клиента по указанному идентификатору.
      * <p>
-     * Выполняет валидацию данных, проверяет уникальность нового имени пользователя,
-     * если оно изменено, обновляет связанного пользователя и шифрует новый пароль,
-     * если он указан.
+     * Выполняет валидацию данных, обновляет имя пользователя и пароль в связанном
+     * объекте {@code User}, а также назначает или удаляет тренера при необходимости.
      * </p>
      *
-     * @param id     идентификатор клиента
-     * @param client объект {@code Client} с обновлёнными данными
+     * @param id        идентификатор клиента для обновления
+     * @param client    объект {@code Client} с новыми данными
+     * @param trainerId идентификатор тренера (опционально, может быть {@code null})
      * @return обновлённый объект {@code Client}
-     * @throws IllegalArgumentException если клиент с указанным ID не найден,
-     *                                  данные не прошли валидацию или имя пользователя занято
+     * @throws IllegalArgumentException если клиент не найден или имя пользователя занято
      */
 
     public Client updateClient(Long id, Client client, Long trainerId) {
@@ -124,22 +132,15 @@ public class ClientService {
     }
 
     /**
-     * Проверяет данные клиента на соответствие правилам.
+     * Выполняет валидацию данных клиента перед созданием или обновлением.
      * <p>
-     * Правила валидации:
-     * <ul>
-     *     <li>Имя: не пустое, 2–50 символов, только буквы, пробелы и дефисы.</li>
-     *     <li>Телефон: должен начинаться с "+7" и содержать 10 цифр.</li>
-     *     <li>Имя пользователя: 3–20 символов, только буквы, цифры и подчёркивания.</li>
-     *     <li>Пароль: минимум 6 символов (для нового клиента обязательно, для обновления опционально).</li>
-     *     <li>Абонемент: должен быть выбран.</li>
-     * </ul>
-     * Также форматирует имя, удаляя лишние пробелы.
+     * Использует утилиту {@code UserEntityValidator} для общей валидации и добавляет
+     * проверки специфические для клиента (номер телефона и абонемент).
      * </p>
      *
-     * @param client объект {@code Client} для проверки
-     * @param isNew  флаг, указывающий, создаётся ли новый клиент ({@code true}) или обновляется существующий ({@code false})
-     * @throws IllegalArgumentException если данные не соответствуют правилам
+     * @param client клиент для валидации
+     * @param isNew  флаг, указывающий, создаётся ли новый клиент ({@code true}) или обновляется ({@code false})
+     * @throws IllegalArgumentException если данные не соответствуют требованиям
      */
 
     private void validateClient(Client client, boolean isNew) {

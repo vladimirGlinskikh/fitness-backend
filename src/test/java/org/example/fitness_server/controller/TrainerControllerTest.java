@@ -24,6 +24,21 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Тестовый класс для контроллера {@code TrainerController}.
+ * <p>
+ * Этот класс содержит юнит-тесты для проверки функциональности эндпоинтов
+ * контроллера {@code TrainerController}, включая получение списка тренеров,
+ * получение тренера по ID, создание, обновление, удаление и получение текущего
+ * тренера. Использует Mockito для мок-объектов и Spring Test для симуляции
+ * HTTP-запросов.
+ * </p>
+ *
+ * @author Милана
+ * @version 1.0
+ * @since 2025-04-29
+ */
+
 @ExtendWith(MockitoExtension.class)
 class TrainerControllerTest {
 
@@ -40,6 +55,15 @@ class TrainerControllerTest {
     private ObjectMapper objectMapper;
     private Trainer trainer;
 
+    /**
+     * Инициализирует тестовую среду перед каждым тестом.
+     * <p>
+     * Настраивает {@code MockMvc} для выполнения HTTP-запросов, создаёт
+     * экземпляр {@code ObjectMapper} для сериализации/десериализации JSON,
+     * и инициализирует тестовый объект {@code Trainer} с предопределёнными данными.
+     * </p>
+     */
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(trainerController).build();
@@ -51,6 +75,16 @@ class TrainerControllerTest {
         trainer.setUsername("trainer1");
         trainer.setPassword("encodedPassword");
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/trainers}.
+     * <p>
+     * Проверяет, что возвращается список тренеров с корректными данными
+     * и что вызывается метод репозитория для получения всех тренеров.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getAllTrainers_ReturnsTrainers() throws Exception {
@@ -64,6 +98,16 @@ class TrainerControllerTest {
         verify(trainerRepository).findAll();
     }
 
+    /**
+     * Тестирует эндпоинт {@code GET /api/trainers/{id}} при наличии тренера.
+     * <p>
+     * Проверяет, что возвращается тренер с корректными данными
+     * и что вызывается метод поиска по ID.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void getTrainerById_TrainerExists_ReturnsTrainer() throws Exception {
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
@@ -76,6 +120,16 @@ class TrainerControllerTest {
         verify(trainerRepository).findById(1L);
     }
 
+    /**
+     * Тестирует эндпоинт {@code GET /api/trainers/{id}} при отсутствии тренера.
+     * <p>
+     * Проверяет, что возвращается статус 404
+     * и что вызывается метод поиска по ID.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void getTrainerById_TrainerNotFound_Returns404() throws Exception {
         when(trainerRepository.findById(1L)).thenReturn(Optional.empty());
@@ -85,6 +139,16 @@ class TrainerControllerTest {
 
         verify(trainerRepository).findById(1L);
     }
+
+    /**
+     * Тестирует эндпоинт {@code POST /api/trainers} с валидным тренером.
+     * <p>
+     * Проверяет, что возвращается созданный тренер
+     * и что вызывается метод сервиса для создания.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void createTrainer_ValidTrainer_ReturnsCreatedTrainer() throws Exception {
@@ -104,6 +168,16 @@ class TrainerControllerTest {
         verify(trainerService).createTrainer(any(Trainer.class));
     }
 
+    /**
+     * Тестирует эндпоинт {@code PUT /api/trainers/{id}} при наличии тренера.
+     * <p>
+     * Проверяет, что возвращается обновлённый тренер
+     * и что вызывается метод сервиса для обновления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void updateTrainer_TrainerExists_ReturnsUpdatedTrainer() throws Exception {
         Trainer updatedTrainer = new Trainer();
@@ -121,6 +195,16 @@ class TrainerControllerTest {
 
         verify(trainerService).updateTrainer(eq(1L), any(Trainer.class));
     }
+
+    /**
+     * Тестирует эндпоинт {@code PUT /api/trainers/{id}} при отсутствии тренера.
+     * <p>
+     * Проверяет, что возвращается статус 400
+     * и что вызывается метод сервиса для обновления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void updateTrainer_TrainerNotFound_Returns400() throws Exception {
@@ -140,6 +224,16 @@ class TrainerControllerTest {
         verify(trainerService).updateTrainer(eq(1L), any(Trainer.class));
     }
 
+    /**
+     * Тестирует эндпоинт {@code DELETE /api/trainers/{id}} при наличии тренера.
+     * <p>
+     * Проверяет, что возвращается статус 200
+     * и что вызывается метод удаления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void deleteTrainer_TrainerExists_Returns200() throws Exception {
         when(trainerRepository.existsById(1L)).thenReturn(true);
@@ -150,6 +244,16 @@ class TrainerControllerTest {
         verify(trainerRepository).deleteById(1L);
     }
 
+    /**
+     * Тестирует эндпоинт {@code DELETE /api/trainers/{id}} при отсутствии тренера.
+     * <p>
+     * Проверяет, что возвращается статус 404
+     * и что метод удаления не вызывается.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void deleteTrainer_TrainerNotFound_Returns404() throws Exception {
         when(trainerRepository.existsById(1L)).thenReturn(false);
@@ -159,6 +263,16 @@ class TrainerControllerTest {
 
         verify(trainerRepository, never()).deleteById(1L);
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/trainers/me} при наличии тренера.
+     * <p>
+     * Проверяет, что возвращается текущий тренер с корректными данными
+     * и что вызывается метод поиска по имени пользователя.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getCurrentTrainer_TrainerExists_ReturnsTrainer() throws Exception {
@@ -174,6 +288,16 @@ class TrainerControllerTest {
 
         verify(trainerRepository).findByUsername("trainer1");
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/trainers/me} при отсутствии тренера.
+     * <p>
+     * Проверяет, что возвращается статус 404
+     * и что вызывается метод поиска по имени пользователя.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getCurrentTrainer_TrainerNotFound_Returns404() throws Exception {

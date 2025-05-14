@@ -20,6 +20,21 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Тестовый класс для контроллера {@code StatisticsController}.
+ * <p>
+ * Этот класс содержит юнит-тесты для проверки функциональности эндпоинта
+ * {@code StatisticsController}, который предоставляет статистику по клиентам
+ * и абонементам. Тесты проверяют корректность подсчёта клиентов, абонементов
+ * и средней стоимости абонемента. Использует Mockito для мок-объектов и
+ * Spring Test для симуляции HTTP-запросов.
+ * </p>
+ *
+ * @author Милана
+ * @version 1.0
+ * @since 2025-04-29
+ */
+
 @ExtendWith(MockitoExtension.class)
 class StatisticsControllerTest {
 
@@ -34,10 +49,29 @@ class StatisticsControllerTest {
 
     private MockMvc mockMvc;
 
+    /**
+     * Инициализирует тестовую среду перед каждым тестом.
+     * <p>
+     * Настраивает {@code MockMvc} для выполнения HTTP-запросов к контроллеру
+     * {@code StatisticsController}.
+     * </p>
+     */
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(statisticsController).build();
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/statistics} с имеющимися абонементами.
+     * <p>
+     * Проверяет, что возвращается корректная статистика, включая общее количество
+     * клиентов, количество абонементов и среднюю стоимость абонемента.
+     * Также проверяет, что вызываются методы репозиториев для получения данных.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getStatistics_ReturnsStatistics() throws Exception {
@@ -61,6 +95,17 @@ class StatisticsControllerTest {
         verify(subscriptionRepository).count();
         verify(subscriptionRepository).findAll();
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/statistics} при отсутствии абонементов.
+     * <p>
+     * Проверяет, что возвращается корректная статистика с нулевой средней стоимостью
+     * абонемента, а также корректное количество клиентов и абонементов.
+     * Убеждается, что вызываются методы репозиториев для получения данных.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getStatistics_NoSubscriptions_ReturnsZeroAverageCost() throws Exception {

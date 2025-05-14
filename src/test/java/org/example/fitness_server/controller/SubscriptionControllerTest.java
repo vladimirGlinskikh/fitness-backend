@@ -23,6 +23,20 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Тестовый класс для контроллера {@code SubscriptionController}.
+ * <p>
+ * Этот класс содержит юнит-тесты для проверки функциональности эндпоинтов
+ * контроллера {@code SubscriptionController}, включая получение списка абонементов,
+ * получение абонемента по ID, создание, обновление и удаление абонемента.
+ * Использует Mockito для мок-объектов и Spring Test для симуляции HTTP-запросов.
+ * </p>
+ *
+ * @author Милана
+ * @version 1.0
+ * @since 2025-04-29
+ */
+
 @ExtendWith(MockitoExtension.class)
 class SubscriptionControllerTest {
 
@@ -39,6 +53,15 @@ class SubscriptionControllerTest {
     private ObjectMapper objectMapper;
     private Subscription subscription;
 
+    /**
+     * Инициализирует тестовую среду перед каждым тестом.
+     * <p>
+     * Настраивает {@code MockMvc} для выполнения HTTP-запросов, создаёт
+     * экземпляр {@code ObjectMapper} для сериализации/десериализации JSON,
+     * и инициализирует тестовый объект {@code Subscription} с предопределёнными данными.
+     * </p>
+     */
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(subscriptionController).build();
@@ -50,6 +73,16 @@ class SubscriptionControllerTest {
         subscription.setCost(5000.0);
         subscription.setDurationDays(30);
     }
+
+    /**
+     * Тестирует эндпоинт {@code GET /api/subscriptions}.
+     * <p>
+     * Проверяет, что возвращается список абонементов с корректными данными
+     * и что вызывается метод репозитория для получения всех абонементов.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void getAllSubscriptions_ReturnsSubscriptions() throws Exception {
@@ -63,6 +96,16 @@ class SubscriptionControllerTest {
         verify(subscriptionRepository).findAll();
     }
 
+    /**
+     * Тестирует эндпоинт {@code GET /api/subscriptions/{id}} при наличии абонемента.
+     * <p>
+     * Проверяет, что возвращается абонемент с корректными данными
+     * и что вызывается метод поиска по ID.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void getSubscriptionById_SubscriptionExists_ReturnsSubscription() throws Exception {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
@@ -75,6 +118,16 @@ class SubscriptionControllerTest {
         verify(subscriptionRepository).findById(1L);
     }
 
+    /**
+     * Тестирует эндпоинт {@code GET /api/subscriptions/{id}} при отсутствии абонемента.
+     * <p>
+     * Проверяет, что возвращается статус 404
+     * и что вызывается метод поиска по ID.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void getSubscriptionById_SubscriptionNotFound_Returns404() throws Exception {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.empty());
@@ -84,6 +137,16 @@ class SubscriptionControllerTest {
 
         verify(subscriptionRepository).findById(1L);
     }
+
+    /**
+     * Тестирует эндпоинт {@code POST /api/subscriptions} с валидным абонементом.
+     * <p>
+     * Проверяет, что возвращается созданный абонемент
+     * и что вызывается метод сервиса для создания.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void createSubscription_ValidSubscription_ReturnsCreatedSubscription() throws Exception {
@@ -103,6 +166,16 @@ class SubscriptionControllerTest {
         verify(subscriptionService).createSubscription(any(Subscription.class));
     }
 
+    /**
+     * Тестирует эндпоинт {@code PUT /api/subscriptions/{id}} при наличии абонемента.
+     * <p>
+     * Проверяет, что возвращается обновлённый абонемент
+     * и что вызывается метод сервиса для обновления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void updateSubscription_SubscriptionExists_ReturnsUpdatedSubscription() throws Exception {
         Subscription updatedSubscription = new Subscription();
@@ -120,6 +193,16 @@ class SubscriptionControllerTest {
 
         verify(subscriptionService).updateSubscription(eq(1L), any(Subscription.class));
     }
+
+    /**
+     * Тестирует эндпоинт {@code PUT /api/subscriptions/{id}} при отсутствии абонемента.
+     * <p>
+     * Проверяет, что возвращается статус 400
+     * и что вызывается метод сервиса для обновления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void updateSubscription_SubscriptionNotFound_Returns400() throws Exception {
@@ -139,6 +222,16 @@ class SubscriptionControllerTest {
         verify(subscriptionService).updateSubscription(eq(1L), any(Subscription.class));
     }
 
+    /**
+     * Тестирует эндпоинт {@code DELETE /api/subscriptions/{id}} при наличии абонемента.
+     * <p>
+     * Проверяет, что возвращается статус 200
+     * и что вызывается метод удаления.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
+
     @Test
     void deleteSubscription_SubscriptionExists_Returns200() throws Exception {
         when(subscriptionRepository.existsById(1L)).thenReturn(true);
@@ -148,6 +241,16 @@ class SubscriptionControllerTest {
 
         verify(subscriptionRepository).deleteById(1L);
     }
+
+    /**
+     * Тестирует эндпоинт {@code DELETE /api/subscriptions/{id}} при отсутствии абонемента.
+     * <p>
+     * Проверяет, что возвращается статус 404
+     * и что метод удаления не вызывается.
+     * </p>
+     *
+     * @throws Exception если произошла ошибка при выполнении запроса
+     */
 
     @Test
     void deleteSubscription_SubscriptionNotFound_Returns404() throws Exception {

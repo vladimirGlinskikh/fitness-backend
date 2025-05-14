@@ -18,19 +18,7 @@
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
         <mockito.version>5.14.2</mockito.version>
     </properties>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

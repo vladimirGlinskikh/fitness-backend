@@ -117,6 +117,7 @@ public class SecurityConfig {
             );
         };
     }
+
     /**
      * Создаёт кодировщик паролей на основе алгоритма BCrypt.
      *

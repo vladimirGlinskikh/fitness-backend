@@ -40,7 +40,7 @@ public class ClientController {
 
     @GetMapping("/test")
     public String testEndpoint() {
-        return "Test endpoint is working!";
+        return "Тестовая конечная точка работает!";
     }
 
     /**
@@ -58,12 +58,21 @@ public class ClientController {
         return clientRepository.findAll(pageable);
     }
 
+    /**
+     * Возвращает общее количество клиентов, зарегистрированных в системе.
+     * <p>
+     * Этот метод выполняет запрос к репозиторию клиентов и возвращает количество записей
+     * в таблице клиентов. Используется для получения статистики или мониторинга.
+     * </p>
+     *
+     * @return количество клиентов в базе данных (тип long)
+     * @since 2025-04-29
+     */
+
     @GetMapping("/count")
     public long getClientCount() {
         return clientRepository.count();
     }
-
-
 
     /**
      * Возвращает клиента по его идентификатору.
